@@ -81,7 +81,7 @@ This example shows the usage of
 * Container environment variable logging
 
 ```
-$ docker run --label foo=abc --label bar=xyz -e SOME_ENV_VAR=foobar --log-driver influxdb-log-driver --log-opt db-server=localhost --log-opt db-server=8086 --log-opt db-database=logger --log-opt db-database=logs --log-opt "tag={{.ImageName}}/{{.Name}}/{{.ID}}" --log-opt labels=foo,bar --log-opt env=SOME_ENV_VAR alpine date
+$ docker run --label foo=abc --label bar=xyz -e SOME_ENV_VAR=foobar --log-driver influxdb-log-driver --log-opt db-server=localhost --log-opt db-port=8086 --log-opt db-database=logger --log-opt db-database=logs --log-opt "tag={{.ImageName}}/{{.Name}}/{{.ID}}" --log-opt labels=foo,bar --log-opt env=SOME_ENV_VAR alpine date
 ```
 
 Observe the influxdb list named `logger` in database of your influxdb instance. You should see a JSON like the following:
@@ -137,8 +137,8 @@ $ docker build -t docker-influxdb-log-driver .
 $ ID=$(docker create docker-influxdb-log-driver true)
 $ mkdir rootfs
 $ docker export $ID | tar -x -C rootfs/
-$ docker plugin create registry.ogw.myocto.cz/generic/docker-influxdb-log-driver:1.1.1 .
-$ docker plugin push registry.ogw.myocto.cz/generic/docker-influxdb-log-driver:1.1.1
-$ docker plugin install registry.ogw.myocto.cz/generic/docker-influxdb-log-driver:1.1.1 --alias influxdb-log-driver
-$ docker plugin enable registry.ogw.myocto.cz/generic/docker-influxdb-log-driver:1.1.1
+$ docker plugin create your.server.com/plugins/docker-influxdb-log-driver:1.0.0 .
+$ docker plugin push your.server.com/plugins/docker-influxdb-log-driver:1.0.0
+$ docker plugin install your.server.com/plugins/docker-influxdb-log-driver:1.0.0 --alias influxdb-log-driver
+$ docker plugin enable your.server.com/plugins/docker-influxdb-log-driver:1.0.0
 ```

@@ -3,8 +3,8 @@ package influxdb
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 	"strings"
+	"time"
 
 	"docker-influxdb-log-driver/commons"
 
@@ -100,7 +100,7 @@ func AppendToList(logLine commons.JSONLogLine, c *Connection) error {
 	ifxdb := *c.client
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  c.config.Database,
-		Precision: "ms",
+		Precision: "ns",
 	})
 
 	if err != nil {
@@ -131,24 +131,24 @@ func AppendToList(logLine commons.JSONLogLine, c *Connection) error {
 	err = json.Unmarshal([]byte(logLine.Message), &jsonMessage)
 	if err == nil {
 		for key, val := range jsonMessage {
-                        array, isArray := val.([]interface{});
+			array, isArray := val.([]interface{})
 
 			if key == "transactionId" {
 				// We want transactionId to be indexed
 				tags[key], _ = val.(string)
 			} else if key == "messages" && isArray {
-                                // Message may be an array, we have to join it
-                                var messages []string
-                                for _, part := range array {
-                                        switch part.(type) {
-                                        case string:
-                                                messages = append(messages, part.(string))
-                                        default:
-                                                str, _ := json.Marshal(part)
-                                                messages = append(messages, string(str))
-                                        }
-                                }
-                                fields["message"] = strings.Join(messages, " ");
+				// Message may be an array, we have to join it
+				var messages []string
+				for _, part := range array {
+					switch part.(type) {
+					case string:
+						messages = append(messages, part.(string))
+					default:
+						str, _ := json.Marshal(part)
+						messages = append(messages, string(str))
+					}
+				}
+				fields["message"] = strings.Join(messages, " ")
 			} else {
 				// Generic field
 				switch val.(type) {
@@ -166,7 +166,7 @@ func AppendToList(logLine commons.JSONLogLine, c *Connection) error {
 		}
 	}
 
-        // Insert
+	// Insert
 	point, err := client.NewPoint(
 		c.config.Table,
 		tags,   // Indexed
