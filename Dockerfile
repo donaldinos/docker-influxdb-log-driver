@@ -24,7 +24,7 @@ FROM alpine:latest
 
 RUN apk --no-cache add --update tzdata
 
-ENV TZ=Europa/Prague
+ENV TZ=Europe/Prague
 
 WORKDIR /usr/bin
 

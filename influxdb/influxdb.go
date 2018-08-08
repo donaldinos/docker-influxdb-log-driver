@@ -128,14 +128,14 @@ func AppendToList(logLine commons.JSONLogLine, c *Connection) error {
 
 	// Try to parse message as JSON
 	var jsonMessage map[string]interface{}
-	err := json.Unmarshal(message, &jsonMessage)
+	err = json.Unmarshal([]byte(logLine.Message), &jsonMessage)
 	if err == nil {
 		for key, val := range jsonMessage {
                         array, isArray := val.([]interface{});
 
 			if key == "transactionId" {
 				// We want transactionId to be indexed
-				tags[key] = val
+				tags[key], _ = val.(string)
 			} else if key == "message" && isArray {
                                 // Message may be an array, we have to join it
                                 var messages []string
