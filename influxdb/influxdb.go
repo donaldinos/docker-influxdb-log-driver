@@ -136,7 +136,7 @@ func AppendToList(logLine commons.JSONLogLine, c *Connection) error {
 			if key == "transactionId" {
 				// We want transactionId to be indexed
 				tags[key], _ = val.(string)
-			} else if key == "message" && isArray {
+			} else if key == "messages" && isArray {
 				// Message may be an array, we have to join it
 				var messages []string
 				for _, part := range array {
@@ -148,7 +148,7 @@ func AppendToList(logLine commons.JSONLogLine, c *Connection) error {
 						messages = append(messages, string(str))
 					}
 				}
-				fields[key] = strings.Join(messages, " ")
+				fields["message"] = strings.Join(messages, " ")
 			} else {
 				// Generic field
 				switch val.(type) {
