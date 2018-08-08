@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+	"strings"
 
 	"docker-influxdb-log-driver/commons"
 
@@ -89,7 +90,6 @@ func (c *Connection) Disconnect() {
 
 // AppendToList - is insert data to DB
 func AppendToList(logLine commons.JSONLogLine, c *Connection) error {
-
 	var err error
 
 	bytes, err := json.Marshal(logLine.Extra)
@@ -126,6 +126,47 @@ func AppendToList(logLine commons.JSONLogLine, c *Connection) error {
 		"extra":             string(bytes),
 	}
 
+	// Try to parse message as JSON
+	var jsonMessage map[string]interface{}
+	err := json.Unmarshal(message, &jsonMessage)
+	if err == nil {
+		for key, val := range jsonMessage {
+                        array, isArray := val.([]interface{});
+
+			if key == "transactionId" {
+				// We want transactionId to be indexed
+				tags[key] = val
+			} else if key == "message" && isArray {
+                                // Message may be an array, we have to join it
+                                var messages []string
+                                for _, part := range array {
+                                        switch part.(type) {
+                                        case string:
+                                                messages = append(messages, part.(string))
+                                        default:
+                                                str, _ := json.Marshal(part)
+                                                messages = append(messages, string(str))
+                                        }
+                                }
+                                fields[key] = strings.Join(messages, " ");
+			} else {
+				// Generic field
+				switch val.(type) {
+				case string:
+					fields[key] = val.(string)
+				case float64:
+					fields[key] = val.(float64)
+				case bool:
+					fields[key] = val.(bool)
+				default:
+					str, _ := json.Marshal(val)
+					fields[key] = string(str)
+				}
+			}
+		}
+	}
+
+        // Insert
 	point, err := client.NewPoint(
 		c.config.Table,
 		tags,   // Indexed
