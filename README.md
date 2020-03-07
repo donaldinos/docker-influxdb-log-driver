@@ -34,7 +34,7 @@ https://www.influxdata.com/
 ## Install
 
 ```
-$ docker plugin install docker-influxdb-log-driver:0.0.1 --alias influxdb-log-driver
+$ docker plugin install donaldinos/docker-influxdb-log-driver:2.0.0 --alias influxdb-log-driver
 Plugin "docker-influxdb-log-driver:0.0.1" is requesting the following privileges:
  - network: [host]
 Do you grant the above permissions? [y/N] y
